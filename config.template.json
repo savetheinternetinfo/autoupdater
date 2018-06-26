@@ -1,0 +1,12 @@
+{
+    "absolute_repository_path": "/home/savetheinternet/website",
+    "port": 3500,
+    "hook": {
+        "path": "/githook",
+        "secret": "abc123"
+    },
+    "commands_to_execute": [
+        "git pull",
+        "npm dev"
+    ]
+}
