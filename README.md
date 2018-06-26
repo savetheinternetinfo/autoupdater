@@ -1,5 +1,11 @@
 # autoupdater
 
+**Info:**
+
+This tool listens for changes on the GitHub webhook and automatically executes bash commands once triggered.
+
+<hr>
+
 **Installation & Quick setup:**
 
 0. Open up your favourite terminal (and navigate somewhere you want to download the repository to) <br><br>
@@ -15,3 +21,5 @@ $ `npm i`<br><br>
 6. Start by typing <br>
 $ `npm start` <br><br>
 7. ALTERNATIVELY: Use a tool like [pm2](http://pm2.keymetrics.io/) to keep the script running.
+
+<hr>
