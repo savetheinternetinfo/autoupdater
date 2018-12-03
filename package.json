@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/savetheinternetinfo/autoupdater#readme",
   "dependencies": {
-    "node-github-webhook": "^1.0.7"
+    "express": "^4.16.4"
   }
 }
