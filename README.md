@@ -1,16 +1,5 @@
 # autoupdater
 
-## NOTE
-
-**This has been included in the main website now!**
-
-See:
-
-- https://github.com/savetheinternetinfo/website/pull/52
-- https://github.com/savetheinternetinfo/website/commit/bb9517a796548b048a6d48bfe1e1bd328ba71a0c 
-
-<hr>
-
 **Info:**
 
 This tool listens for changes on the GitHub webhook and automatically executes bash commands once triggered.
