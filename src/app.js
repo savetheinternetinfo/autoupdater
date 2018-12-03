@@ -2,6 +2,7 @@
 
 // Dependencies
 let express = require("express");
+let bodyParser = require("body-parser");
 
 // Utils
 let conf = require("./utils/configurator");
@@ -34,6 +35,11 @@ if (appPort < 1 || appPort > 65535){
 }
 
 app.set("port", appPort);
+
+app.use(bodyParser.urlencoded({ 
+    extended: true
+}));
+app.use(bodyParser.json());
 
 require("./hooks")(app);
 
