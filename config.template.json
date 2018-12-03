@@ -1,12 +1,27 @@
 {
-    "absolute_repository_path": "/home/savetheinternet/website",
-    "port": 3500,
-    "hook": {
-        "path": "/githook",
-        "secret": "abc123"
+    "port": 4400,
+
+    "live": {
+        "repository_path": "...",
+        "commands": [
+            "git pull",
+            "npm run assets-production"
+        ],
+        "hook": {
+            "path": "/livehook",
+            "sercet": "..."
+        }
     },
-    "commands_to_execute": [
-        "git pull",
-        "npm dev"
-    ]
+
+    "dev": {
+        "repository_path": "...",
+        "commands": [
+            "git pull",
+            "npm run assets-dev"
+        ],
+        "hook": {
+            "path": "/livehook",
+            "sercet": "..."
+        }
+    }
 }
