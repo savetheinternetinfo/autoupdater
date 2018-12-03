@@ -1,63 +1,77 @@
 "use strict";
 
-let fs  = require("fs");
+// Core Modules
+let fs = require("fs");
+let path = require("path");
+
+// Utils
 let log = require("./logger");
 
-require.extensions[".json"] = function (module, filename) { module.exports = fs.readFileSync(filename, "utf8"); };
+const packagefile = require(path.resolve("package.json"));
+const configPath  = path.resolve("config.json");
 
-const path = approot + "/config.json";
-const pack = require(approot +  "/package.json");
-
-let pInfo = JSON.parse(pack);
-
-const defaults = {
-    "absolute_repository_path": "/home/savetheinternet/website",
-    "port": 3500,
-    "hook": {
-        "path": "/githook",
-        "secret": "abc123"
-    },
-    "commands_to_execute": [
-        "git pull",
-        "npm dev"
-    ]
-};
-
-let reset = function(){ 
-    try { fs.writeFileSync(path, JSON.stringify(defaults, null, 4)); }
-    catch (err) { return log("Could not reset config: " + err, true); }
-    log("Config has been reset");
-};
-
-let getconfig = function(){
-    if (!fs.existsSync(path)){
-        log("Config does not exist!", true);
-        reset();
-    } 
-    
-    let jsondata = require(path);
-    if (validateJSON(jsondata)) return JSON.parse(jsondata);
-
-    else {
-        log("Config is invalid! Resetting...", true);
-        reset();
-        jsondata = require(path);
-        return defaults;
+/**
+ * Check if the config is valid JSON
+ *
+ * @param {*} obj
+ * @returns {boolean} whether it is valid JSON
+ */
+let validJson = function(obj){
+    try {
+        JSON.parse(obj);
     }
+    catch (e){
+        return false;
+    }
+    return true;
 };
 
-function validateJSON(input){
-    try { JSON.parse(input); } 
-    catch (e){ return false; }
-    return true;
-}
+/**
+ * Reads out config data
+ *
+ * @returns {string} JSON Content
+ */
+let getconfig = function(){
+    if (!fs.existsSync(configPath)){
+        log.error("Config does not exist! Make sure you copy config.template.json and paste it as 'config.json'. Then configure it.");
+        process.exit(1);
+    }
 
-let getVersion = function(){ return pInfo.version;     };
-let getName    = function(){ return pInfo.name;        };
+    let jsondata = "";
+    try {
+        jsondata = String(fs.readFileSync(configPath));
+    }
+    catch (e){
+        log.error(`Cannot read config file: ${e}`);
+        process.exit(1);
+    }
+
+    if (validJson(jsondata)) return JSON.parse(jsondata);
+
+    log.error("Config is not valid JSON. Stopping...");
+    return process.exit(1);
+};
+
+let getVersion = function(){
+    return packagefile.version;
+};
+
+let getName = function(){
+    return packagefile.name;
+};
+
+let getAuthor = function(){
+    return packagefile.author;
+};
+
+let getDescription = function(){
+    return packagefile.description;
+};
 
 module.exports = {
-    getConfig:      getconfig,
-    reset:          reset,
-    getVersion:     getVersion,
-    getName:        getName
+    getConfig: getconfig,
+    getVersion: getVersion,
+    getName: getName,
+    getAuthor: getAuthor,
+    getDescription: getDescription
 };
