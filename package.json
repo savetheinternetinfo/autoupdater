@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/savetheinternetinfo/autoupdater#readme",
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "buffer-equal-constant-time": "^1.0.1",
     "express": "^4.16.4"
   }
 }
