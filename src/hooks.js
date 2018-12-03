@@ -6,6 +6,7 @@ let exec = require("child_process").exec;
 // Utils
 let conf = require("./utils/configurator");
 let log = require("./utils/logger");
+let verifyRequest = require("./utils/verifyRequest");
 
 let puts = function(err, stdout, stderr){
     if (err) return log.error(err);
@@ -21,11 +22,19 @@ let executor = function(env){
 let config = conf.getConfig();
 
 module.exports = function(app){ 
-    app.get("/livehook", (req, res) => {
-        // ...
+    // Live Deployment
+    app.post(config.live.hook.path, (req, res) => {
+        let response = verifyRequest(req, config.live.hook.secret);
+        if (!response.valid) return log.error(response.error);
+
+        let payloadData = req.body;
     });
 
-    app.get("/devhook", (req, res) => {
-        // ...
+    // Dev Deployment
+    app.post(config.dev.hook.path, (req, res) => {
+        let response = verifyRequest(req, config.live.hook.secret);
+        if (!response.valid) return log.error(response.error);
+
+        let payloadData = req.body;
     });
 };
