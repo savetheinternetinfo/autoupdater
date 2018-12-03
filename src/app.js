@@ -1,53 +1,50 @@
-"us strict";
+"use strict";
 
-let http       = require("http");
-let path       = require("path");
-let exec       = require("child_process").exec;
-let initHandle = require("node-github-webhook");
+// Dependencies
+let express = require("express");
 
-global.approot = path.join(__dirname, "..")
-
+// Utils
 let conf = require("./utils/configurator");
-let log  = require("./utils/logger");
+let log = require("./utils/logger");
 
 const appname = conf.getName();
 const version = conf.getVersion();
 
+let splashPadding = 12 + appname.length + version.toString().length;
+
 console.log(
     "\n" +
-    " #" + "-".repeat(12 + appname.length + version.toString().length) + "#\n" +
-    " # Started " + appname + " v" + version + " #\n" +
-    " #" + "-".repeat(12 + appname.length + version.toString().length) + "#\n"
+    ` #${"-".repeat(splashPadding)}#\n` +
+    ` # Started ${appname} v${version} #\n` +
+    ` #${"-".repeat(splashPadding)}#\n\n`
 );
 
-log("Started...");
-const config  = conf.getConfig();
+let app = express();
+log.info("Started...");
 
-let handler = initHandle({ 
-    path: config.hook.path, 
-    secret: config.hook.secret 
-});
+const config = conf.getConfig();
 
-http.createServer(function(req, res){
-    handler(req, res, function(err){
-        res.statusCode = 404;
-        log("Got invalid path", true);
-        res.end("Invalid path");
-  })
-}).listen(config.port);
+const appPort = config.port || 3000;
 
-handler.on("error", function(err){ log(err.message, true); });
+if (!config.port) log.warn("No port specified. Using default: 3000");
 
-handler.on("push", function(event){
-    log(`Got push for ${event.payload.repository.name} to ${event.payload.ref}`);
-    if (event.path == config.hook.path){
-        let command = "cd " + config.absolute_repository_path;
-        for (let i in config.commands_to_execute) command += " && " + config.commands_to_execute[i];
-        exec(command, puts);
-    }
-});
-
-function puts(err, stdout, stderr){
-    if (err) return log(err, true);
-    log(stdout);
+if (appPort < 1 || appPort > 65535){
+    log.error(`Invalid port specified: ${appPort}\nStopping...`);
+    process.exit(1);
 }
+
+app.set("port", appPort);
+
+require("./hooks")(app);
+
+process.on("unhandledRejection", function(err, promise){
+    log.error(`Unhandled rejection (promise: ${promise}, reason: ${err})`);
+});
+
+app.listen(app.get("port"), function(err){
+    if (err){
+        log.error(`Error on port ${app.get("port")}: ${err}`);
+        process.exit(1);
+    }
+    log.info(`Listening on port ${app.get("port")}...`);
+});
