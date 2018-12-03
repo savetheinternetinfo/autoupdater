@@ -11,9 +11,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Package-Lock JSON
-package-lock.json
-
 # Build files
 build/
 dist/
