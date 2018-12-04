@@ -2,7 +2,8 @@
     "port": 4400,
 
     "live": {
-        "repository_path": "...",
+        "repository_path": "/",
+        "pm2_process_name": "liveSTI",
         "commands": [
             "git pull",
             "npm run assets-production"
@@ -14,7 +15,8 @@
     },
 
     "dev": {
-        "repository_path": "...",
+        "repository_path": "/",
+        "pm2_process_name": "devSTI",
         "commands": [
             "git pull",
             "npm run assets-dev"
