@@ -15,7 +15,10 @@ let verifySignature = function(secret, data, signature){
 };
 
 let verifyRequest = function(req, secret){
-    let response = {};
+    let response = {
+        valid: false,
+        error: ""
+    };
 
     if (!req.headers["x-github-delivery"]){
         response.valid = false;
@@ -33,14 +36,9 @@ let verifyRequest = function(req, secret){
         response.error += "No signature found in the request\n";
     }
 
-    if (secret && !verifySignature(secret, JSON.stringify(req.body), sign)){
+    if (!verifySignature(secret, JSON.stringify(req.body), sign)){
         response.valid = false;
         response.error += "Failed to verify signature\n";
-    }
-
-    else {
-        response.valid = true;
-        response.error = null;
     }
 
     return response;
