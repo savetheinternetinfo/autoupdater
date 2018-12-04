@@ -4,9 +4,11 @@
     "live": {
         "repository_path": "/",
         "pm2_process_name": "liveSTI",
+        "script_path": "/",
         "commands": [
             "git pull",
-            "npm run assets-production"
+            "npm run assets-production",
+            "npm run build"
         ],
         "hook": {
             "path": "/livehook",
@@ -17,12 +19,14 @@
     "dev": {
         "repository_path": "/",
         "pm2_process_name": "devSTI",
+        "script_path": "/",
         "commands": [
             "git pull",
-            "npm run assets-dev"
+            "npm run assets-dev",
+            "npm run build"
         ],
         "hook": {
-            "path": "/livehook",
+            "path": "/devhook",
             "sercet": "..."
         }
     }
