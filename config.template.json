@@ -2,6 +2,7 @@
     "port": 4400,
 
     "live": {
+        "enabled": true,
         "repository_path": "/",
         "pm2_process_name": "liveSTI",
         "script_path": "/",
@@ -17,6 +18,7 @@
     },
 
     "dev": {
+        "enabled": true,
         "repository_path": "/",
         "pm2_process_name": "devSTI",
         "script_path": "/",

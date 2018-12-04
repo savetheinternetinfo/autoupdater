@@ -65,6 +65,8 @@ module.exports = function(app){
     app.post(config.live.hook.path, (req, res) => {
         log.info("Got build request for Live");
 
+        if (!config.dev.enabled) return log.warn("Live hook is disabled");
+
         let response = verifyRequest(req, config.live.hook.secret);
         if (!response.valid) return log.error(response.error);
 
@@ -85,7 +87,9 @@ module.exports = function(app){
     app.post(config.dev.hook.path, (req, res) => {
         log.info("Got build request for Dev");
 
-        let response = verifyRequest(req, config.live.hook.secret);
+        if (!config.dev.enabled) return log.warn("Dev hook is disabled");
+
+        let response = verifyRequest(req, config.dev.hook.secret);
         if (!response.valid) return log.error(response.error);
 
         log.done("Request for Dev is valid!");
