@@ -8,6 +8,12 @@ let conf = require("./utils/configurator");
 let log = require("./utils/logger");
 let verifyRequest = require("./utils/verifyRequest");
 
+/**
+ * CLI command executor
+ *
+ * @param {*} env
+ * @param {*} callback
+ */
 let executor = function(env, callback){
     let command = "cd " + config[env].repository_path;
     for (let nextCommand of config[env].commands) command += " && " + nextCommand;
@@ -18,6 +24,11 @@ let executor = function(env, callback){
 
 let config = conf.getConfig();
 
+/**
+ * Main hook function
+ *
+ * @param {*} app - ExpressJS object
+ */
 module.exports = function(app){
     // Live Deployment
     app.post(config.live.hook.path, (req, res) => {
