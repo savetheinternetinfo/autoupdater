@@ -36,7 +36,7 @@ if (appPort < 1 || appPort > 65535){
 
 app.set("port", appPort);
 
-app.use(bodyParser.urlencoded({ 
+app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
@@ -47,7 +47,7 @@ process.on("unhandledRejection", function(err, promise){
     log.error(`Unhandled rejection (promise: ${promise}, reason: ${err})`);
 });
 
-app.listen(app.get("port"), function(err){
+app.listen(app.get("port"), (err) => {
     if (err){
         log.error(`Error on port ${app.get("port")}: ${err}`);
         process.exit(1);
