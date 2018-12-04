@@ -42,7 +42,7 @@ let config = conf.getConfig();
  */
 let pm2Handler = function(scriptName, env, scriptPath){
     pm2.delete(scriptName, (delErr) => {
-        if (delErr) return log.error(`PM2 Delete Error for ${env} on script ${scriptName}: ${delErr}`);
+        if (delErr) log.warn("Script is not running - No process needs to be terminated.");
 
         let startOptions = {
             name: scriptName,
