@@ -8,26 +8,31 @@ let conf = require("./utils/configurator");
 let log = require("./utils/logger");
 let verifyRequest = require("./utils/verifyRequest");
 
-let puts = function(err, stdout, stderr){
-    if (err) return log.error(err);
-    log.info(stdout);
-};
-
-let executor = function(env){
+let executor = function(env, callback){
     let command = "cd " + config[env].repository_path;
     for (let nextCommand of config[env].commands) command += " && " + nextCommand;
-    exec(command, puts);
+    exec(command, function(err, stdout, stderr){
+        callback(...arguments);
+    });
 };
 
 let config = conf.getConfig();
 
-module.exports = function(app){ 
+module.exports = function(app){
     // Live Deployment
     app.post(config.live.hook.path, (req, res) => {
         let response = verifyRequest(req, config.live.hook.secret);
         if (!response.valid) return log.error(response.error);
 
-        let payloadData = req.body;
+        executor("live", function(err, stdout, stderr){
+            if (err || stderr){
+                if (err) log.error(`Exec Error on Live: ${err}`);
+                if (stderr) log.error(`Exec STDERR on Live: ${stderr}`);
+                return;
+            }
+
+            // TODO: PM2 STUFF
+        });
     });
 
     // Dev Deployment
@@ -35,6 +40,14 @@ module.exports = function(app){
         let response = verifyRequest(req, config.live.hook.secret);
         if (!response.valid) return log.error(response.error);
 
-        let payloadData = req.body;
+        executor("dev", function(err, stdout, stderr){
+            if (err || stderr){
+                if (err) log.error(`Exec Error on Dev: ${err}`);
+                if (stderr) log.error(`Exec STDERR on Dev: ${stderr}`);
+                return;
+            }
+
+            // TODO: PM2 STUFF
+        });
     });
 };
