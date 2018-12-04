@@ -65,7 +65,7 @@ module.exports = function(app){
     app.post(config.live.hook.path, (req, res) => {
         log.info("Got build request for Live");
 
-        if (!config.dev.enabled) return log.warn("Live hook is disabled");
+        if (!config.live.enabled) return log.warn("Live hook is disabled");
 
         let response = verifyRequest(req, config.live.hook.secret);
         if (!response.valid) return log.error(response.error);
