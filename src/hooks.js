@@ -26,8 +26,8 @@ let executor = function(env, callback){
 
     let command = "cd " + config[env].repository_path;
     for (let nextCommand of config[env].commands) command += " && " + nextCommand;
-    exec(command, (...args) => {
-        callback(args);
+    exec(command, (err, stdin) => {
+        callback(err, stdin);
     });
 };
 
@@ -71,12 +71,8 @@ module.exports = function(app){
         if (!response.valid) return log.error(response.error);
 
         log.done("Request for Live is valid!");
-        executor("live", (err, stdout, stderr) => {
-            if (err || stderr){
-                if (err) log.error(`Exec Error on Live: ${err}`);
-                if (stderr) log.error(`Exec STDERR on Live: ${stderr}`);
-                return;
-            }
+        executor("live", (err) => {
+            if (err) return log.error(`Exec Error on Live: ${err}`);
             log.done("Executed CLI commands for Live successfully");
 
             pm2Handler(config.live.pm2_process_name, "live", config.live.script_path);
@@ -93,12 +89,8 @@ module.exports = function(app){
         if (!response.valid) return log.error(response.error);
 
         log.done("Request for Dev is valid!");
-        executor("dev", (err, stdout, stderr) => {
-            if (err || stderr){
-                if (err) log.error(`Exec Error on Dev: ${err}`);
-                if (stderr) log.error(`Exec STDERR on Dev: ${stderr}`);
-                return;
-            }
+        executor("dev", (err) => {
+            if (err) return log.error(`Exec Error on Live: ${err}`);
             log.done("Executed CLI commands for Dev successfully");
 
             pm2Handler(config.dev.pm2_process_name, "dev", config.dev.script_path);
