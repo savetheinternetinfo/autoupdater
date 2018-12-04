@@ -26,8 +26,8 @@ let executor = function(env, callback){
 
     let command = "cd " + config[env].repository_path;
     for (let nextCommand of config[env].commands) command += " && " + nextCommand;
-    exec(command, (err, stdout, stderr) => {
-        callback(...arguments);
+    exec(command, (...args) => {
+        callback(args);
     });
 };
 
