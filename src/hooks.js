@@ -11,6 +11,8 @@ let conf = require("./utils/configurator");
 let log = require("./utils/logger");
 let verifyRequest = require("./utils/verifyRequest");
 
+let config = conf.getConfig();
+
 pm2.connect((err) => {
     if (err) log.error(err);
 });
@@ -30,8 +32,6 @@ let executor = function(env, callback){
         callback(err, stdin);
     });
 };
-
-let config = conf.getConfig();
 
 /**
  * Stop and start the node script
