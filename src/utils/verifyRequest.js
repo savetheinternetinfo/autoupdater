@@ -14,7 +14,7 @@ let bufferEq = require("buffer-equal-constant-time");
  * @returns {string} signed response
  */
 let signData = function(secret, data){
-    return `sha1=${crypto.createHmac("sha1", secret).update(data).digest("hex")}`;
+    return "sha1=" + crypto.createHmac("sha1", secret).update(data).digest("hex");
 };
 
 /**

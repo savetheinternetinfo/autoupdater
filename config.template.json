@@ -13,7 +13,7 @@
         ],
         "hook": {
             "path": "/livehook",
-            "sercet": "..."
+            "secret": "..."
         }
     },
 
@@ -29,7 +29,7 @@
         ],
         "hook": {
             "path": "/devhook",
-            "sercet": "..."
+            "secret": "..."
         }
     }
 }
