@@ -40,14 +40,15 @@ let executor = function(env, callback){
  * @param {*} env
  * @param {*} scriptPath
  */
-let pm2Handler = function(scriptName, env, scriptPath){
+let pm2Handler = function(scriptName, scriptPath, workingDir, env){
     pm2.delete(scriptName, (delErr) => {
         if (delErr) log.warn("Script is not running - No process needs to be terminated.");
         else log.info("Script has been stopped.");
 
         let startOptions = {
             name: scriptName,
-            script: scriptPath
+            script: scriptPath,
+            cwd: workingDir
         };
         pm2.start(startOptions, (startErr) => {
             if (startErr) return log.error(`PM2 Start Error for ${env} on script ${scriptName} at ${scriptPath}: ${startErr}`);
@@ -56,48 +57,62 @@ let pm2Handler = function(scriptName, env, scriptPath){
     });
 };
 
+let deployer = function(env){
+    executor(env, (err) => {
+        if (err) return log.error(`Exec Error on ${env}: ${err}`);
+        log.done(`Executed CLI commands for ${env} successfully`);
+
+        pm2Handler(config[env].pm2_process_name, config[env].script_path, config[env].repository_path, env);
+    });
+};
+
+/**
+ * Deployment routine
+ *
+ * @param {*} env
+ * @param {*} req
+ * @returns on error
+ */
+let launcher = function(env, req){
+    log.info(`Got build request for ${env}`);
+
+    if (!config[env].enabled) return log.warn("Live hook is disabled");
+
+    let response = verifyRequest(req, config[env].hook.secret);
+    if (!response.valid){
+        for (let errMsg of response.errors) log.error(errMsg);
+        return;
+    }
+
+    log.done(`Request for ${env} is valid!`);
+    deployer(env);
+};
+
 /**
  * Main hook function
  *
  * @param {*} app - ExpressJS object
  */
 module.exports = function(app){
+    if (config.live.execute_on_startup && config.live.enabled){
+        let env = "live";
+        log.info(`Initial launch of script for ${env}`);
+        deployer(env);
+    }
+
+    if (config.dev.execute_on_startup && config.dev.enabled){
+        let env = "dev";
+        log.info(`Initial launch of script for ${env}`);
+        deployer(env);
+    }
+
     // Live Deployment
     app.post(config.live.hook.path, (req, res) => {
-        log.info("Got build request for Live");
-
-        if (!config.live.enabled) return log.warn("Live hook is disabled");
-
-        let response = verifyRequest(req, config.live.hook.secret);
-        if (!response.valid){
-            for (let errMsg of response.errors) log.error(errMsg);
-            return;
-        }
-
-        log.done("Request for Live is valid!");
-        executor("live", (err) => {
-            if (err) return log.error(`Exec Error on Live: ${err}`);
-            log.done("Executed CLI commands for Live successfully");
-
-            pm2Handler(config.live.pm2_process_name, "live", config.live.script_path);
-        });
+        launcher("live", req);
     });
 
     // Dev Deployment
     app.post(config.dev.hook.path, (req, res) => {
-        log.info("Got build request for Dev");
-
-        if (!config.dev.enabled) return log.warn("Dev hook is disabled");
-
-        let response = verifyRequest(req, config.dev.hook.secret);
-        if (!response.valid) return log.error(response.error);
-
-        log.done("Request for Dev is valid!");
-        executor("dev", (err) => {
-            if (err) return log.error(`Exec Error on Live: ${err}`);
-            log.done("Executed CLI commands for Dev successfully");
-
-            pm2Handler(config.dev.pm2_process_name, "dev", config.dev.script_path);
-        });
+        launcher("dev", req);
     });
 };
