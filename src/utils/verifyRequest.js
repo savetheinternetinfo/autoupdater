@@ -1,7 +1,6 @@
 "use strict";
 
 // Core Modules
-let bl = require("bl");
 let crypto = require("crypto");
 
 // Dependencies
@@ -31,20 +30,6 @@ let verifySignature = function(secret, data, signature){
 };
 
 /**
- * Get data buffer from req
- *
- * @param {*} req
- * @param {*} callback
- */
-let getDataObj = function(req, callback){
-    // @ts-ignore
-    req.pipe(bl((err, data) => {
-        if (err) return callback(err);
-        return callback(null, data);
-    }));
-};
-
-/**
  * Verify signature and headers of hook-call
  *
  * @param {*} req
@@ -52,40 +37,34 @@ let getDataObj = function(req, callback){
  * @returns {object} Valid request
  */
 let verifyRequest = function(req, secret){
-    getDataObj(req, (err, data) => {
-        let response = {
-            valid: false,
-            error: ""
-        };
+    let response = {
+        valid: false,
+        error: ""
+    };
 
-        if (err){
-            response.valid = false;
-            response.error = err + "\n";
-        }
+    if (!req.headers["x-github-delivery"]){
+        response.valid = false;
+        response.error += "No id found in the request\n";
+    }
 
-        if (!req.headers["x-github-delivery"]){
-            response.valid = false;
-            response.error += "No id found in the request\n";
-        }
+    if (!req.headers["x-github-event"]){
+        response.valid = false;
+        response.error += "No event found in the request\n";
+    }
 
-        if (!req.headers["x-github-event"]){
-            response.valid = false;
-            response.error += "No event found in the request\n";
-        }
+    let sign = req.headers["x-hub-signature"] || "";
+    if (!sign){
+        response.valid = false;
+        response.error += "No signature found in the request\n";
+    }
 
-        let sign = req.headers["x-hub-signature"] || "";
-        if (!sign){
-            response.valid = false;
-            response.error += "No signature found in the request\n";
-        }
+    let reqData = JSON.stringify(req.body);
+    if (!verifySignature(secret, reqData, sign)){
+        response.valid = false;
+        response.error += "Failed to verify signature\n";
+    }
 
-        if (!verifySignature(secret, data, sign)){
-            response.valid = false;
-            response.error += "Failed to verify signature\n";
-        }
-
-        return response;
-    });
+    return response;
 };
 
 module.exports = verifyRequest;
