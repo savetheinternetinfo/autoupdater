@@ -43,6 +43,7 @@ let executor = function(env, callback){
 let pm2Handler = function(scriptName, env, scriptPath){
     pm2.delete(scriptName, (delErr) => {
         if (delErr) log.warn("Script is not running - No process needs to be terminated.");
+        else log.info("Script has been stopped.");
 
         let startOptions = {
             name: scriptName,
