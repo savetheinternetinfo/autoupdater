@@ -38,7 +38,7 @@ let verifySignature = function(secret, data, signature){
  */
 let verifyRequest = function(req, secret){
     let response = {
-        valid: false,
+        valid: true,
         error: ""
     };
 
