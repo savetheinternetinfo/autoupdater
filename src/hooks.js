@@ -69,7 +69,10 @@ module.exports = function(app){
         if (!config.live.enabled) return log.warn("Live hook is disabled");
 
         let response = verifyRequest(req, config.live.hook.secret);
-        if (!response.valid) return log.error(response.error);
+        if (!response.valid){
+            for (let errMsg of response.errors) log.error(errMsg);
+            return;
+        }
 
         log.done("Request for Live is valid!");
         executor("live", (err) => {
